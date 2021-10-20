@@ -1,0 +1,39 @@
+name: Obfuscate Workflow
+on:
+  create:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+jobs:
+  obfuscate:
+    runs-on: ubuntu-latest
+    env:
+      WORDPRESS_DEV: wordpress-dev/base/pmpr/tmp
+    steps:
+      - name: Get Repository Name
+        env:
+          OWNER: pmpr-dev
+        run: |
+          vendorAndRepo=$GITHUB_REPOSITORY
+          prefix=$OWNER
+          prefix="${prefix}/"
+          repo=${vendorAndRepo#"$prefix"}
+          echo -n $repo > /home/runner/repo.txt
+
+      - name: Install PHP and Composer
+        run: |
+          sudo apt install php-cli unzip
+          cd ~
+          curl -sS https://getcomposer.org/installer -o composer-setup.php
+          HASH=`curl -sS https://composer.github.io/installer.sig`
+          php -r "if (hash_file('SHA384', 'composer-setup.php') === '$HASH') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+          sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+
+      - name: Install PHP Obfuscator and Dependencies
+        run: |
+          cd ~
+          git clone https://github.com/pmpr-dev/obfuscator.git
+          cd obfuscator
+          composer install 2>/dev/null
+          chmod a+x obfuscator.php
+          cd /usr/local/bin
+          sudo ln -s ~/obfuscator/obfuscator.php obfuscator
