@@ -1,0 +1,13 @@
+{
+    "name": "Obuscator Workflow",
+    "description": "Obuscator template.",
+    "iconName": "example-icon",
+    "categories": [
+        "Go"
+    ],
+    "filePatterns": [
+        "package.json$",
+        "^Dockerfile",
+        ".*\\.md$"
+    ]
+}
